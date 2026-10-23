@@ -1,0 +1,21 @@
+/var/log/nginx/*.log {
+	daily
+	maxsize 10M
+	rotate 14
+	missingok
+	compress
+	delaycompress
+	notifempty
+	create 0640 www-data adm
+	sharedscripts
+	prerotate
+		if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+			run-parts /etc/logrotate.d/httpd-prerotate; \
+		fi \
+	endscript
+	postrotate
+		if /bin/systemctl is-active --quiet nginx.service; then
+			/usr/sbin/nginx -s reopen
+		fi
+	endscript
+}
